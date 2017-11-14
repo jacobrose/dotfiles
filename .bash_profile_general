@@ -1,0 +1,80 @@
+# General setup not pertaining to any particular project, to be
+# sourced from .bash_profile
+#
+# Shell prompt setup
+#
+# I want to see a few things at a glance:
+# * Time
+# * My username
+# * Which computer this is
+# * My current working directory, plus a hint as to what's above it
+# * If I'm in a git directory, which branch I'm on and whether there's
+#   anything funky going on with it (detached, rebasing, merging, conflicts)
+#
+# ...and I don't want to lose any room to type commands, so this is a
+# two-line prompt that looks something like:
+#         
+#     16:56:50 jacobrose@work-laptop:/U/j/dotfiles master
+#
+git_status() {
+    local normal_status=$(git status 2>>/dev/null)
+    local porcelain_status=$(git status --porcelain 2>>/dev/null)
+
+    local highlight_yellow="\033[1;33m"
+    local highlight_white="\033[1;37m"
+    local highlight_off="\033[0m"
+
+    local branch_status=$(git branch 2>>/dev/null | grep '^\*' | cut -f2- -d' ')
+    local off_branch=$(grep '^(' <<< "$branch_status")
+
+    local in_merge=$(grep 'abort the merge' <<< "$normal_status")
+    local in_conflict=$(grep 'fix conflicts' <<< "$normal_status")
+    local is_detached=$(grep detached <<< "$branch_status")
+    local is_rebasing=$(grep rebasing <<< "$branch_status")
+
+    if [ -n "$off_branch" -o -n "$in_merge" ] ; then
+        # Uh oh! We're not on a branch, or we're in the middle of a merge; highlight (and shorthand) this status
+        local conflict_status=""
+        local new_status
+        if [ -n "$is_detached" ] ; then
+            new_status="detached"
+        elif [ -n "$is_rebasing" ] ; then
+            new_status="rebasing"
+        elif [ -n "$in_merge" ] ; then
+            new_status="merging"
+        else
+            new_status=$branch_status
+        fi
+
+        if [ -n "$in_conflict" ] ; then
+            conflict_status=" >conflict<"
+        fi
+
+        branch_status="$highlight_yellow$new_status$conflict_status$highlight_off"
+    fi
+
+    # Any modification at all? Show a star to say so.
+    local modified_status=''
+    if [ -n "$porcelain_status" ]; then
+        modified_status="$modified_status$highlight_white*$highlight_off"
+    fi
+
+    if [ -n "$branch_status" ]; then
+        echo -ne "$branch_status"
+    fi
+
+    if [ -n "$modified_status" ]; then
+        echo -ne "$modified_status"
+    fi
+}
+PROMPT_COMMAND='pwd2=$(sed "s:\([^/]\)[^/]*/:\1/:g" <<<$PWD); ' # from https://unix.stackexchange.com/questions/26844/abbreviated-current-directory-in-shell-prompt
+export PS1='\e[1m\t \u@\h:$pwd2\e[0m $(git_status)\n\$ '
+
+# conveniences
+alias mcflush="echo flush_all | nc localhost 11211"
+alias ls="ls -F "
+
+# And because sometimes I forget I'm not working on ew anymore,
+# this just bounces me to the top of whatever repo I'm in
+cdew() { cd `git rev-parse --show-toplevel`; }
+
