@@ -78,3 +78,15 @@ alias ls="ls -F "
 # this just bounces me to the top of whatever repo I'm in
 cdew() { cd `git rev-parse --show-toplevel`; }
 
+# Private JSON pretty-print (requires JSON cpan module)
+jsonpretty() {
+    {
+        if [ -n "$1" ] ; then
+            # use parameter as JSON source if provided
+            echo "$1"
+        else
+            # pass whatever was on stdin on through
+            cat -
+        fi
+    } | perl -MJSON -e '$json = JSON->new; print $json->pretty->encode($json->decode(<>));'
+}
