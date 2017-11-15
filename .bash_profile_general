@@ -13,7 +13,7 @@
 #
 # ...and I don't want to lose any room to type commands, so this is a
 # two-line prompt that looks something like:
-#         
+#
 #     16:56:50 jacobrose@work-laptop:/U/j/dotfiles master
 #
 git_status() {
@@ -55,15 +55,15 @@ git_status() {
 
     # Any modification at all? Show a star to say so.
     local modified_status=''
-    if [ -n "$porcelain_status" ]; then
+    if [ -n "$porcelain_status" ] ; then
         modified_status="$modified_status$highlight_white*$highlight_off"
     fi
 
-    if [ -n "$branch_status" ]; then
+    if [ -n "$branch_status" ] ; then
         echo -ne "$branch_status"
     fi
 
-    if [ -n "$modified_status" ]; then
+    if [ -n "$modified_status" ] ; then
         echo -ne "$modified_status"
     fi
 }
