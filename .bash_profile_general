@@ -28,12 +28,14 @@ git_status() {
     local off_branch=$(grep '^(' <<< "$branch_status")
 
     local in_merge=$(grep 'abort the merge' <<< "$normal_status")
+    local in_cherry_pick=$(grep 'currently cherry-picking' <<< "$normal_status")
     local in_conflict=$(grep 'fix conflicts' <<< "$normal_status")
     local is_detached=$(grep detached <<< "$branch_status")
     local is_rebasing=$(grep rebasing <<< "$branch_status")
 
-    if [ -n "$off_branch" -o -n "$in_merge" ] ; then
-        # Uh oh! We're not on a branch, or we're in the middle of a merge; highlight (and shorthand) this status
+    if [ -n "$off_branch" -o -n "$in_merge" -o -n "$in_cherry_pick" ] ; then
+        # Uh oh! We're not on a branch, or we're in the middle of a merge or cherry-pick:
+        # highlight (and shorthand) our status!
         local conflict_status=""
         local new_status
         if [ -n "$is_detached" ] ; then
@@ -42,6 +44,8 @@ git_status() {
             new_status="rebasing"
         elif [ -n "$in_merge" ] ; then
             new_status="merging"
+        elif [ -n "$in_cherry_pick" ] ; then
+            new_status="cherry-pick"
         else
             new_status=$branch_status
         fi
