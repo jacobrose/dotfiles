@@ -1,6 +1,34 @@
 # General setup not pertaining to any particular project, to be
 # sourced from .bash_profile
+
+# Taming Docker for Mac
 #
+# Set hyperkit priority to 10 so it doesn't eat the CPU
+#
+alias dockerpri='echo -n "docker priority currently: "; ps alx | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *\([0-9]*\) .*:\1:"'
+alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *\([0-9]*\) .*:\1:"); echo -n "dockerpri: "; dockerpri'
+
+# Conveniences
+alias mcflush="echo flush_all | nc localhost 11211"
+alias ls="ls -F " # it's like -G but for colorblind people
+
+# And because sometimes I forget I'm not working on ew anymore,
+# this just bounces me to the top of whatever repo I'm in
+cdew() { cd `git rev-parse --show-toplevel`; }
+
+# Private JSON pretty-print (requires JSON cpan module)
+jsonpretty() {
+    {
+        if [ -n "$1" ] ; then
+            # use parameter as JSON source if provided
+            echo "$1"
+        else
+            # pass whatever was on stdin on through
+            cat -
+        fi
+    } | perl -MJSON -e '$json = JSON->new; print $json->pretty->encode($json->decode(<>));'
+}
+
 # Shell prompt setup
 #
 # I want to see a few things at a glance:
@@ -74,23 +102,4 @@ git_status() {
 PROMPT_COMMAND='pwd2=$(sed "s:\([^/]\)[^/]*/:\1/:g" <<<$PWD); ' # from https://unix.stackexchange.com/questions/26844/abbreviated-current-directory-in-shell-prompt
 export PS1='\e[1m\t \u@\h:$pwd2\e[0m $(git_status)\n\$ '
 
-# conveniences
-alias mcflush="echo flush_all | nc localhost 11211"
-alias ls="ls -F "
 
-# And because sometimes I forget I'm not working on ew anymore,
-# this just bounces me to the top of whatever repo I'm in
-cdew() { cd `git rev-parse --show-toplevel`; }
-
-# Private JSON pretty-print (requires JSON cpan module)
-jsonpretty() {
-    {
-        if [ -n "$1" ] ; then
-            # use parameter as JSON source if provided
-            echo "$1"
-        else
-            # pass whatever was on stdin on through
-            cat -
-        fi
-    } | perl -MJSON -e '$json = JSON->new; print $json->pretty->encode($json->decode(<>));'
-}
