@@ -102,4 +102,57 @@ git_status() {
 PROMPT_COMMAND='pwd2=$(sed "s:\([^/]\)[^/]*/:\1/:g" <<<$PWD); ' # from https://unix.stackexchange.com/questions/26844/abbreviated-current-directory-in-shell-prompt
 export PS1='\e[1m\t \u@\h:$pwd2\e[0m $(git_status)\n\$ '
 
+delete_all_but() {
+    if ["${BASH_VERSION%%.*}" -lt 4]; then
+        echo "Requires associative arrays, not available until BASH 4. Aborting."
+        return
+    fi
+
+    # List planned exceptions and build associative array for later use
+    echo "You are about to delete every file in the current working directory except for those in this list:"
+    echo "EXCEPTIONS ARE $*"
+    local -A exceptions
+    for exception in $*; do
+        exceptions[$exception]=1
+        echo "    * $exception"
+    done
+
+    # List a few of the files that will be deleted
+    echo
+    echo "Here are a few of the files we will delete:"
+    show=5 # count down from this maximum number of files to list
+    more=0 # count up the rest of the files not listed
+    for file in *; do
+        if [ "$show" = "0" ]; then
+            more=$(($more + 1))
+        else
+            if [ "${exceptions[$file]}" != "1" ]; then
+                echo "    * $file"
+                show=$(($show - 1))
+            fi
+        fi
+    done
+    if [ "$more" != "0" ]; then
+        echo "    ...and $more more."
+    fi
+
+    # Prompt for approval
+    echo
+    echo -n "Are you sure? (type 'yes' to proceed) "
+    read answer
+    if [ "$answer" != 'yes' ]; then
+        echo "Aborting."
+        return
+    fi
+
+    # Okay to proceed. Delete away!
+    for file in *; do
+        if [ "${exceptions[$file]}" = "1" ]; then
+            echo "Skipping '$file'..."
+        else
+            echo "Deleting '$file'..."
+            rm -rf $file
+        fi
+    done
+}
 
