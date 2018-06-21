@@ -156,3 +156,17 @@ delete_all_but() {
     done
 }
 
+# Handy alias for dealing with long lines; usually for use with
+# git grep, which often returns long compiled stuff that we don't
+# care to see.
+shorts() {
+    LENGTH=135
+
+    if [ "$1" = "-t" ]; then
+        # Truncate lines rather than eliminating them
+        cut -c1-$LENGTH
+    else
+        # Filter long lines out
+        awk '/^.{1,'$LENGTH'}$/ { print }'
+    fi
+}
