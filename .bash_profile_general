@@ -16,7 +16,7 @@ alias ls="ls -F " # it's like -G but for colorblind people
 # this just bounces me to the top of whatever repo I'm in
 cdew() { cd `git rev-parse --show-toplevel`; }
 
-# Private JSON pretty-print (requires JSON cpan module)
+# Private JSON pretty-print (requires https://stedolan.github.io/jq)
 jsonpretty() {
     {
         if [ -n "$1" ] ; then
@@ -26,7 +26,7 @@ jsonpretty() {
             # pass whatever was on stdin on through
             cat -
         fi
-    } | perl -MJSON -e '$json = JSON->new; print $json->pretty->encode($json->decode(<>));'
+    } | jq --monochrome-output --sort-keys --indent 4 .
 }
 
 # Shell prompt setup
