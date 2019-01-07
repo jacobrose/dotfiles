@@ -170,3 +170,10 @@ shorts() {
         awk '/^.{1,'$LENGTH'}$/ { print }'
     fi
 }
+
+# Lint your python code before you ship it
+pylint() {
+    for file in `git diff origin/master --name-only | grep '\\.py$'`; do
+        flake8 $file
+    done
+}
