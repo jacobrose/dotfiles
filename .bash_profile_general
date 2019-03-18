@@ -12,9 +12,8 @@ alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.h
 alias mcflush="echo flush_all | nc localhost 11211"
 alias ls="ls -F " # it's like -G but for colorblind people
 
-# And because sometimes I forget I'm not working on ew anymore,
-# this just bounces me to the top of whatever repo I'm in
-cdew() { cd `git rev-parse --show-toplevel`; }
+# Jump to top of current repo
+cdt() { cd `git rev-parse --show-toplevel`; }
 
 # Private JSON pretty-print (requires https://stedolan.github.io/jq)
 jsonpretty() {
@@ -177,3 +176,5 @@ pylint() {
         flake8 $file
     done
 }
+
+alias freescreen='for screen in `screen -ls | grep "Attached" | cut -f1 -d. | cut -f2`; do screen -d $screen; done'
