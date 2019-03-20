@@ -1,0 +1,11 @@
+# Support unicode characters, like the rodeo horse
+term rxvt-unicode-256color
+
+# There's always room for more, but this usually saves typing ^A : scrollback 999999
+defscrollback 30000
+
+# No copyright notice, please
+startup_messge off
+
+# Quaff potion!
+nethack on
