@@ -5,7 +5,7 @@ term rxvt-unicode-256color
 defscrollback 30000
 
 # No copyright notice, please
-startup_messge off
+startup_message off
 
 # Quaff potion!
 nethack on
