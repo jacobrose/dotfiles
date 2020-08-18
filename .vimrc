@@ -1,5 +1,3 @@
-execute pathogen#infect()
-
 scriptencoding utf-8
 set encoding=utf-8
 
