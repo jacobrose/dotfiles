@@ -11,6 +11,7 @@ alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.h
 # Conveniences
 alias mcflush="echo flush_all | nc localhost 11211"
 alias ls="ls -F " # it's like -G but for colorblind people
+alias logme="tail -F $LOGFILES | grep WHOA | sed -e 's/\\\\n/\\n/g'"
 
 # Jump to top of current repo
 cdt() { cd `git rev-parse --show-toplevel`; }
