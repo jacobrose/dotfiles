@@ -10,7 +10,13 @@ alias freescreen='for screen in `screen -ls | grep "Attached" | cut -f1 -d. | cu
 # Conveniences
 alias mcflush="echo flush_all | nc localhost 11211"
 alias ls="ls -F " # it's like -G but for colorblind people
-alias logme="tail -F $LOGFILES | grep WHOA | sed -e 's/\\\\n/\\n/g'"
+alias logme="tail -F $LOGFILES | grep WHOA | sed -e 's/\\\\n/\\n/g' -e 's/\\\"/\"/g'"
+
+# Generalized log tail with grep that formats single-line
+# JSON ugliness into multi-line JSON prettiness
+loggrep() {
+    tail -F $LOGFILES | stdbuf -o0 grep "$*" | sed -u -e 's/\\n/\n/g' -e 's/\\"/"/g'
+}
 
 # Jump to top of current repo
 cdt() { cd `git rev-parse --show-toplevel`; }
