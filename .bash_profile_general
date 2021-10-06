@@ -1,12 +1,11 @@
 # General setup not pertaining to any particular project, to be
 # sourced from .bash_profile
 
-# Taming Docker for Mac
-#
-# Set hyperkit priority to 10 so it doesn't eat the CPU
-#
-alias dockerpri='echo -n "docker priority currently: "; ps alx | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *\([0-9]*\) .*:\1:"'
-alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *\([0-9]*\) .*:\1:"); echo -n "dockerpri: "; dockerpri'
+# Sometimes screen(1) doesn't time out fast enough for my liking.
+# This forces all attached screens to detach immediately so I can
+# use `screen -RR` to load each one in turn.
+alias freescreen='for screen in `screen -ls | grep "Attached" | cut -f1 -d. | cut -f2`; do screen -d $screen; done'
+
 
 # Conveniences
 alias mcflush="echo flush_all | nc localhost 11211"
@@ -190,4 +189,9 @@ pylint() {
     done
 }
 
-alias freescreen='for screen in `screen -ls | grep "Attached" | cut -f1 -d. | cut -f2`; do screen -d $screen; done'
+# Taming Docker for Mac
+#
+# Set hyperkit priority to 10 so it doesn't eat the CPU
+#
+alias dockerpri='echo -n "docker priority currently: "; ps alx | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *\([0-9]*\) .*:\1:"'
+alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *\([0-9]*\) .*:\1:"); echo -n "dockerpri: "; dockerpri'
