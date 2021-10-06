@@ -203,6 +203,11 @@ u2s() {
     dosed 's|_|/|g' $@
 }
 
+# Find string x inside a PHP function named f
+findxinf() {
+    find . -type f -name "*.php" -exec perl -n -e 'if (/function ([a-zA-Z0-9_]*)/) { $method = $1; } if (/'$1'/ && ( $method =~ /'$2'/)) { print $ARGV, "\n"; }' {}  \;
+}
+
 # Lint your python code before you ship it
 pylint() {
     for file in `git diff origin/master --name-only | grep '\\.py$'`; do
