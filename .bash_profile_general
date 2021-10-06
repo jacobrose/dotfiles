@@ -182,6 +182,27 @@ shorts() {
     fi
 }
 
+# Takes -e script to run on first parameter, and input on second paramter (or falls back to stdin)
+dosed() {
+    if (( "$#" == 1 )); then
+        sed -e $1 -
+    else
+        expression=$1
+        shift
+        echo $@ | sed -e $expression -
+    fi
+}
+
+# convert paths/like/this to paths_like_this
+s2u() {
+    dosed 's|/|_|g' $@
+}
+
+# convert paths_like_this to paths/like/this
+u2s() {
+    dosed 's|_|/|g' $@
+}
+
 # Lint your python code before you ship it
 pylint() {
     for file in `git diff origin/master --name-only | grep '\\.py$'`; do
