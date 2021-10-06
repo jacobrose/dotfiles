@@ -208,6 +208,12 @@ findxinf() {
     find . -type f -name "*.php" -exec perl -n -e 'if (/function ([a-zA-Z0-9_]*)/) { $method = $1; } if (/'$1'/ && ( $method =~ /'$2'/)) { print $ARGV, "\n"; }' {}  \;
 }
 
+# Getting into GCloud
+function gcloud_auth() {
+    gcloud auth login --no-launch-browser
+    gcloud auth application-default login --no-launch-browser
+}
+
 # Lint your python code before you ship it
 pylint() {
     for file in `git diff origin/master --name-only | grep '\\.py$'`; do
