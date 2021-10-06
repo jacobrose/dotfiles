@@ -99,8 +99,20 @@ git_status() {
         echo -ne "$modified_status"
     fi
 }
+
+# Use the first unique bit of the hostname to the prompt -- jrose@jrose isn't useful, but jrose@vm is
+uniquehost() {
+    hostname="`hostname -s`"
+    if [ "$hostname" == "$USER" ] ; then
+        full_hostname="`hostname`"
+        hostname=$(echo $full_hostname | sed -e "s|$USER\.\([^\.]*\)\..*|\1|")
+    fi
+    echo $hostname
+}
+export UNIQUEHOST="$(uniquehost)"
+
 PROMPT_COMMAND='pwd2=$(sed "s:\([^/]\)[^/]*/:\1/:g" <<<$PWD); ' # from https://unix.stackexchange.com/questions/26844/abbreviated-current-directory-in-shell-prompt
-export PS1='\e[1m\t \u@\h:$pwd2\e[0m $(git_status)\n\$ '
+export PS1='\e[1m\t \u@$UNIQUEHOST:$pwd2\e[0m $(git_status)\n\$ '
 
 delete_all_but() {
     if ["${BASH_VERSION%%.*}" -lt 4]; then
