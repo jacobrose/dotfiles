@@ -1,6 +1,5 @@
 # General setup not pertaining to any particular project, to be
-# sourced from .bash_profile
-
+# sourced from .bash_profile 
 # Sometimes screen(1) doesn't time out fast enough for my liking.
 # This forces all attached screens to detach immediately so I can
 # use `screen -RR` to load each one in turn.
@@ -15,7 +14,7 @@ alias logme="tail -F $LOGFILES | grep WHOA | sed -e 's/\\\\n/\\n/g' -e 's/\\\"/\
 # Generalized log tail with grep that formats single-line
 # JSON ugliness into multi-line JSON prettiness
 loggrep() {
-    tail -F $LOGFILES | stdbuf -o0 grep "$*" | sed -u -e 's/\\n/\n/g' -e 's/\\"/"/g'
+    tail -F $LOGFILES | stdbuf -o0 grep -e "$*" | sed -u -e 's/\\n/\n/g' -e 's/\\"/"/g'
 }
 
 # Jump to top of current repo
@@ -233,3 +232,7 @@ pylint() {
 #
 alias dockerpri='echo -n "docker priority currently: "; ps alx | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *[0-9]*  *\([0-9]*\) .*:\1:"'
 alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.hyperkit | grep -v grep | sed "s: *\([0-9]*\) .*:\1:"); echo -n "dockerpri: "; dockerpri'
+
+# Reset character set when `reset`, `clear`, and even `stty sane; tput rs1` don't work
+# From https://unix.stackexchange.com/a/261688
+alias resetcharset='echo -e "\033c"'
