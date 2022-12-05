@@ -1,0 +1,137 @@
+# General setup not pertaining to any particular project, to be
+# sourced from .zshrc
+# Sometimes screen(1) doesn't time out fast enough for my liking.
+# This forces all attached screens to detach immediately so I can
+# use `screen -RR` to load each one in turn.
+alias freescreen='for screen in `screen -ls | grep "Attached" | cut -f1 -d. | cut -f2`; do screen -d $screen; done'
+
+
+# Conveniences
+alias mcflush="echo flush_all | nc localhost 11211"
+alias ls="ls -F " # it's like -G but for colorblind people
+alias logme="tail -F $LOGFILES | grep WHOA | sed -e 's/\\\\n/\\n/g' -e 's/\\\"/\"/g'"
+
+# Generalized log tail with grep that formats single-line
+# JSON ugliness into multi-line JSON prettiness
+loggrep() {
+    tail -F $LOGFILES | stdbuf -o0 grep -e "$*" | sed -u -e 's/\\n/\n/g' -e 's/\\"/"/g'
+}
+
+# Jump to top of current repo
+cdt() { cd `git rev-parse --show-toplevel`; }
+
+# Private JSON pretty-print (requires https://stedolan.github.io/jq)
+jsonpretty() {
+    {
+        if [ -n "$1" ] ; then
+            # use parameter as JSON source if provided
+            echo "$1"
+        else
+            # pass whatever was on stdin on through
+            cat -
+        fi
+    } | jq --monochrome-output --sort-keys --indent 4 .
+}
+
+# Shell prompt setup
+#
+# I want to see a few things at a glance:
+# * Time
+# * My username
+# * Which computer this is
+# * My current working directory, plus a hint as to what's above it
+# * If I'm in a git directory, which branch I'm on and whether there's
+#   anything funky going on with it (detached, rebasing, merging, conflicts)
+#
+# ...and I don't want to lose any room to type commands, so this is a
+# two-line prompt that looks something like:
+#
+#     16:56:50 jacobrose@work-laptop:/U/j/dotfiles master
+
+# Use the first unique bit of the hostname to the prompt -- jrose@jrose isn't useful, but jrose@vm is
+uniquehost() {
+    local hostname=$(hostname -s)
+    if [[ $hostname == $USER ]] ; then
+        full_hostname=$(hostname)
+        hostname=$(echo $full_hostname | sed -e "s|$USER\.\([^\.]*\)\..*|\1|")
+    fi
+    echo $hostname
+}
+export UNIQUEHOST=$(uniquehost)
+
+# Provide a foreshortened path in the prompt
+update_abbreviated_path() {
+	export PWDABBR=$(echo "$PWD" | sed "s:\([^/]\)[^/]*/:\1/:g")
+}
+update_abbreviated_path
+
+# From https://www.themoderncoder.com/add-git-branch-information-to-your-zsh-prompt/ and https://arjanvandergaag.nl/blog/customize-zsh-prompt-with-vcs-info.html
+# Load version control information
+autoload -Uz vcs_info
+# Format the vcs_info_msg_0_ variable
+zstyle ':git:*' check-for-changes true formats '%b%F{bold}%m%u%c%F{no_bold}%F{yellow}%a%F{reset_color}'
+precmd() { vcs_info; update_abbreviated_path }
+ 
+# Set up the prompt (with git branch name)
+setopt PROMPT_SUBST
+export NEWLINE=$'\n'
+PROMPT='%n@${UNIQUEHOST}:$PWDABBR ${vcs_info_msg_0_}$NEWLINE\$ '
+
+# Handy alias for dealing with long lines; usually for use with
+# git grep, which often returns long compiled stuff that we don't
+# care to see.
+shorts() {
+    LENGTH=135
+
+    if [ "$1" = "-t" ]; then
+        # Truncate lines rather than eliminating them
+        cut -c1-$LENGTH
+    else
+        # Filter long lines out
+        awk '/^.{1,'$LENGTH'}$/ { print }'
+    fi
+}
+
+# Takes -e script to run on first parameter, and input on second paramter (or falls back to stdin)
+dosed() {
+    if (( "$#" == 1 )); then
+        sed -e $1 -
+    else
+        expression=$1
+        shift
+        echo $@ | sed -e $expression -
+    fi
+}
+
+# convert paths/like/this to paths_like_this
+s2u() {
+    dosed 's|/|_|g' $@
+}
+
+# convert paths_like_this to paths/like/this
+u2s() {
+    dosed 's|_|/|g' $@
+}
+
+# Find string x inside a PHP function named f
+findxinf() {
+    find . -type f -name "*.php" -exec perl -n -e 'if (/function ([a-zA-Z0-9_]*)/) { $method = $1; } if (/'$1'/ && ( $method =~ /'$2'/)) { print $ARGV, "\n"; }' {}  \;
+}
+
+# Getting into GCloud
+function gcloud_auth() {
+    gcloud auth login --no-launch-browser
+    gcloud auth application-default login --no-launch-browser
+}
+
+# Lint your python code before you ship it
+pylint() {
+    for file in `git diff origin/master --name-only | grep '\\.py$'`; do
+        flake8 $file
+    done
+}
+
+# Reset character set when `reset`, `clear`, and even `stty sane; tput rs1` don't work
+# From https://unix.stackexchange.com/a/261688
+alias resetcharset='echo -e "\033c"'
+
