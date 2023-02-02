@@ -135,3 +135,7 @@ pylint() {
 # From https://unix.stackexchange.com/a/261688
 alias resetcharset='echo -e "\033c"'
 
+# Fix ctrl+arrows for word movement in zsh; must also turn off Mission Control's use of ctrl+arrows under "Accessibility"
+bindkey -e
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
