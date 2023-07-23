@@ -237,3 +237,5 @@ alias dockernice='sudo renice 10 $(ps ax | grep .app/Contents/MacOS/com.docker.h
 # Reset character set when `reset`, `clear`, and even `stty sane; tput rs1` don't work
 # From https://unix.stackexchange.com/a/261688
 alias resetcharset='echo -e "\033c"'
+
+export HISTTIMEFORMAT='%Y-%m-%d %H:%I:%S %z '

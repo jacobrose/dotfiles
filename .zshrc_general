@@ -140,3 +140,5 @@ alias resetcharset='echo -e "\033c"'
 bindkey -e
 bindkey '^[[1;5C' forward-word
 bindkey '^[[1;5D' backward-word
+
+alias history="history -t '%Y-%m-%d %H:%I:%S %z'"
