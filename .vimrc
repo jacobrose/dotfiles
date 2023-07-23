@@ -23,3 +23,9 @@ set list
 " Use \u27F6 (long rightwards arrow) for tabs
 " And \u2038 (caret) for trailing spaces
 set listchars=tab:⟶\ ,trail:‸
+
+" Turn on linting for javascript
+au BufRead,BufNewFile *.ts set filetype=javascript
+let g:ale_linters = {
+\    'javascript': ['eslint']
+\}
